@@ -24,7 +24,7 @@ export async function POST(req) {
     const fineTuneResponse = await openai.fineTuning.jobs.create({
       training_file: fileId,
       model: "gpt-4o-2024-08-06", // Replace with the specific GPT-4o model ID
-      suffix: "chakrava-dev",
+      suffix: "chakrava-dev-v3",
     });
 
     console.log("Fine-tuning started:", fineTuneResponse);
