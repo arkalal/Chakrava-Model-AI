@@ -23,7 +23,8 @@ export async function POST(req) {
     // Create a fine-tuning job with the uploaded file
     const fineTuneResponse = await openai.fineTuning.jobs.create({
       training_file: fileId,
-      model: "gpt-4o-mini", // Replace with the specific GPT-4o model ID
+      model: "gpt-4o-2024-08-06", // Replace with the specific GPT-4o model ID
+      suffix: "chakrava-dev",
     });
 
     console.log("Fine-tuning started:", fineTuneResponse);
