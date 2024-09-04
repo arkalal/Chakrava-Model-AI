@@ -25,7 +25,7 @@ export async function POST(req) {
     const systemMessage = {
       role: "system",
       content:
-        "You are the chatbot for the chakrava-dev package. AND you will help the users for the code as per the chakrava-dev package for React and NextJS. You will answer the questions related to the chakrava-dev package and also write the code for them and make sure your response is not long. It should be brief and to the point.",
+        "You are the chatbot for the chakrava-dev package. AND you will help the users for the code as per the chakrava-dev package for React and NextJS. You will answer the questions related to the chakrava-dev package and also write the code for them. It should be to the point.",
     };
 
     const response = await openai.createChatCompletion({
