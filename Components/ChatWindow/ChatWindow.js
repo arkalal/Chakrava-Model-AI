@@ -55,7 +55,7 @@ const ChatWindow = () => {
 
             <div ref={messagesEndRef} />
           </div>
-          <div className={styles.settingsPanel}>
+          {/* <div className={styles.settingsPanel}>
             <div className={styles.modifications}>
               <SliderControl
                 label="Output Length"
@@ -96,7 +96,7 @@ const ChatWindow = () => {
                 step={0.01}
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className={styles.chatInput}>
