@@ -14,7 +14,7 @@ const ChatWindow = () => {
   const [topP, setTopP] = useState(1.0); // Default value
   const [topK, setTopK] = useState(50); // Default value
   const [repetitionPenalty, setRepetitionPenalty] = useState(1.0);
-  const [continueMessage, setContinueMessage] = useState(null); // Track the message to continue from
+  const [showContinueButton, setShowContinueButton] = useState(false); // Track if we need to show the button
   const [loading, setLoading] = useState(false);
 
   const messagesEndRef = useRef(null);
@@ -30,8 +30,9 @@ const ChatWindow = () => {
       repetitionPenalty,
     },
     onFinish: (message, { finishReason }) => {
-      if (finishReason === "length") {
-        setContinueMessage(message); // Save the last message for continuation
+      // If the message stopped due to length, show the continue button
+      if (finishReason === "error") {
+        setShowContinueButton(true); // Show the button if response is cut off
       }
     },
   });
@@ -43,18 +44,16 @@ const ChatWindow = () => {
     }
   }, [messages]);
 
-  // Function to continue the response from the last message
+  // Function to handle the "Continue with your response" button
   const handleContinueResponse = async () => {
-    if (continueMessage) {
-      setLoading(true);
-      try {
-        await handleSubmit({ body: { ...continueMessage } });
-        setContinueMessage(null); // Reset the continue message
-      } catch (error) {
-        console.error("Error continuing response:", error);
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+    try {
+      await handleSubmit({ body: { input: "Continue with your response" } });
+      setShowContinueButton(false); // Hide the button once the response is continued
+    } catch (error) {
+      console.error("Error continuing response:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,10 +119,10 @@ const ChatWindow = () => {
         </div>
 
         {/* Display continue button if response was cut off */}
-        {continueMessage && (
+        {showContinueButton && (
           <div className={styles.continueButton}>
             <button onClick={handleContinueResponse} disabled={loading}>
-              {loading ? "Continuing..." : "Continue Response"}
+              {loading ? "Continuing..." : "Continue with your response"}
             </button>
           </div>
         )}
