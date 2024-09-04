@@ -31,7 +31,7 @@ const ChatWindow = () => {
     },
     onFinish: (message, { finishReason }) => {
       // If the message stopped due to length, show the continue button
-      if (finishReason === "other") {
+      if (finishReason === "unknown") {
         setShowContinueButton(true); // Show the button if response is cut off
       }
     },
