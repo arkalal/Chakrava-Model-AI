@@ -38,12 +38,6 @@ const ChatWindow = () => {
     }
   }, [messages]);
 
-  // Function to handle the "Continue with your response" button
-  const handleContinueResponse = () => {
-    setInput("Continue with your response"); // Simulate typing into the input field
-    handleSubmit(); // Trigger submission of the "Continue with your response" message
-  };
-
   return (
     <div className={styles.chatContainer}>
       <div className={styles.chatBox}>
@@ -105,12 +99,6 @@ const ChatWindow = () => {
             onChange={handleInputChange}
             onSubmit={handleSubmit}
           />
-
-          <div className={styles.continueButton}>
-            <button onClick={handleContinueResponse} disabled={loading}>
-              Complete the response properly
-            </button>
-          </div>
         </div>
       </div>
     </div>
