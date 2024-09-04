@@ -2,6 +2,8 @@ import { Configuration, OpenAIApi } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { NextResponse } from "next/server";
 
+export const runtime = "edge";
+
 export async function POST(req) {
   try {
     const {
@@ -31,7 +33,7 @@ export async function POST(req) {
     const response = await openai.createChatCompletion({
       model: "ft:gpt-4o-2024-08-06:personal:chakrava-dev-v3:A3RXH2Hk",
       temperature: 1,
-      max_tokens: 1500,
+      max_tokens: 4000,
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
