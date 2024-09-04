@@ -30,7 +30,7 @@ export async function POST(req) {
 
     const response = await openai.createChatCompletion({
       model: "ft:gpt-4o-2024-08-06:personal:chakrava-dev-v3:A3RXH2Hk",
-      max_tokens: 4000,
+      max_tokens: 10000,
       temperature: temperature || 0.7,
       messages: [systemMessage, ...messages],
       stream: true,
