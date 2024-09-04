@@ -30,8 +30,14 @@ export async function POST(req) {
 
     const response = await openai.createChatCompletion({
       model: "ft:gpt-4o-2024-08-06:personal:chakrava-dev-v3:A3RXH2Hk",
+      temperature: 1,
       max_tokens: 1500,
-      temperature: temperature || 0.8,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+      response_format: {
+        type: "text",
+      },
       messages: [systemMessage, ...messages],
       stream: true,
     });
