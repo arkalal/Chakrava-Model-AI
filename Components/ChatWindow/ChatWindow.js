@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
 import axios from "axios";
 import styles from "../Chat.module.scss";
 import { IoIosArrowDown } from "react-icons/io";
@@ -36,9 +36,9 @@ const ChatWindow = () => {
 
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  useLayoutEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView();
     }
   }, [messages]);
 
