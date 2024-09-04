@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useLayoutEffect } from "react";
-import axios from "axios";
 import styles from "../Chat.module.scss";
-import { IoIosArrowDown } from "react-icons/io";
 import ChatMessage from "../ChatMessage/ChatMessage";
 import SliderControl from "../SliderControl/SliderControl";
 import ChatInput from "../ChatInput/ChatInput";
@@ -11,14 +9,15 @@ import { useChat } from "ai/react";
 
 const ChatWindow = () => {
   const [model, setModel] = useState("gpt-3.5-turbo");
-  const [outputLength, setOutputLength] = useState(626); // Default value
+  const [outputLength, setOutputLength] = useState(1000); // Default value
   const [temperature, setTemperature] = useState(0.8); // Default value
   const [topP, setTopP] = useState(1.0); // Default value
   const [topK, setTopK] = useState(50); // Default value
   const [repetitionPenalty, setRepetitionPenalty] = useState(1.0);
-  const [key, setKey] = useState("");
-  const [endpoint, setEndpoint] = useState("");
+  const [continueMessage, setContinueMessage] = useState(null); // Track the message to continue from
   const [loading, setLoading] = useState(false);
+
+  const messagesEndRef = useRef(null);
 
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     api: "/api/chat",
@@ -29,18 +28,35 @@ const ChatWindow = () => {
       topP,
       topK,
       repetitionPenalty,
-      key,
-      endpoint,
+    },
+    onFinish: (message, { finishReason }) => {
+      if (finishReason === "length") {
+        setContinueMessage(message); // Save the last message for continuation
+      }
     },
   });
 
-  const messagesEndRef = useRef(null);
-
+  // Scroll to the bottom as messages update
   useLayoutEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView();
     }
   }, [messages]);
+
+  // Function to continue the response from the last message
+  const handleContinueResponse = async () => {
+    if (continueMessage) {
+      setLoading(true);
+      try {
+        await handleSubmit({ body: { ...continueMessage } });
+        setContinueMessage(null); // Reset the continue message
+      } catch (error) {
+        console.error("Error continuing response:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   return (
     <div className={styles.chatContainer}>
@@ -102,6 +118,15 @@ const ChatWindow = () => {
             onSubmit={handleSubmit}
           />
         </div>
+
+        {/* Display continue button if response was cut off */}
+        {continueMessage && (
+          <div className={styles.continueButton}>
+            <button onClick={handleContinueResponse} disabled={loading}>
+              {loading ? "Continuing..." : "Continue Response"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
