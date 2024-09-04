@@ -22,11 +22,17 @@ export async function POST(req) {
 
     const openai = new OpenAIApi(config);
 
+    const systemMessage = {
+      role: "system",
+      content:
+        "You are the chatbot for the chakrava-dev package. AND you will help me users for the code as per the chakrava-dev package.",
+    };
+
     const response = await openai.createChatCompletion({
       model: "ft:gpt-4o-2024-08-06:personal:chakrava-dev-v3:A3RXH2Hk",
       max_tokens: 4000,
       temperature: temperature || 0.7,
-      messages,
+      messages: [systemMessage, ...messages],
       stream: true,
     });
 
