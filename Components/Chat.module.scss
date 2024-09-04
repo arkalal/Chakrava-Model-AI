@@ -1,0 +1,292 @@
+@import "../utils/mixins.module.scss";
+
+.chatContainer {
+  width: 90%;
+  margin: 40px auto;
+
+  .chatboxHeader {
+    margin-bottom: 15px;
+
+    h2 {
+      font-size: 17px;
+    }
+    display: flex;
+    align-items: center;
+    gap: 40px;
+
+    .dropdownContainer {
+      position: relative;
+
+      .inferenceDropIcon {
+        position: absolute;
+        right: 10px;
+        top: 30%;
+      }
+
+      label {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      select {
+        appearance: none;
+        width: 300px;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid $borders;
+        border-radius: 5px;
+        background-color: $white;
+        cursor: pointer;
+        outline: none;
+
+        &::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          right: 10px;
+          transform: translateY(-50%);
+          border: 6px solid transparent;
+          border-top-color: #000;
+        }
+      }
+    }
+  }
+
+  .chatBox {
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+
+    .chatInput {
+      .chatForm {
+        padding: 10px;
+        border: 1px solid $borders;
+        border-radius: 10px;
+        height: 150px;
+        position: relative;
+        background-color: $white;
+        width: 100%;
+
+        textarea {
+          padding: 8px 12px;
+          resize: none;
+          height: 100px;
+          width: 94%;
+          border: none;
+          outline: none;
+          background-color: $white;
+          font-size: 17px;
+        }
+
+        .icons {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+
+          button {
+            font-size: 14px;
+            cursor: pointer;
+            padding: 10px 15px;
+            background-color: $selectedPrimary;
+            color: $white;
+            border: none;
+            outline: none;
+            border-radius: 8px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+
+    .chatWindow {
+      width: 100%;
+      display: flex;
+      gap: 10px;
+
+      .chatHistory {
+        height: 550px;
+        width: 75%;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid $borders;
+        border-radius: 10px;
+        background-color: $white;
+
+        .chatMessage {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+
+          .userText,
+          .aiText {
+            max-width: 80%;
+            word-wrap: break-word;
+          }
+
+          .userText {
+            align-self: flex-end;
+            // background-color: #d1e7dd;
+            // color: #000;
+            // border-radius: 10px;
+            // padding: 5px 10px;
+            margin-bottom: 4px;
+            width: fit-content;
+            margin-top: 15px;
+            margin-left: 60px;
+
+            p {
+              line-height: 25px;
+              color: $primary;
+            }
+          }
+
+          .aiText {
+            align-self: flex-start;
+            // background-color: #f8d7da;
+            // border-radius: 10px;
+            // padding: 5px 10px;
+            margin-top: 15px;
+            width: fit-content;
+            margin-right: 60px;
+
+            p {
+              line-height: 25px;
+              white-space: pre-wrap;
+              color: black;
+            }
+          }
+        }
+      }
+    }
+
+    .settingsPanel {
+      width: 25%;
+      padding: 20px;
+      background-color: $white;
+      border: 1px solid $borders;
+      border-radius: 10px;
+      height: 550px;
+
+      .settingsApiInput {
+        margin-bottom: 20px;
+
+        input {
+          width: 100%;
+          padding: 10px;
+          border-radius: 10px;
+          font-size: 14px;
+        }
+      }
+
+      .modelSelector {
+        margin-bottom: 20px;
+
+        h3 {
+          margin-bottom: 10px;
+          margin-left: 5px;
+          font-weight: 400;
+          font-size: 16px;
+          color: black;
+          font-weight: 500;
+        }
+
+        .modelSelect {
+          width: 100%;
+          padding: 10px 12px;
+          border-radius: 16px;
+          border: none;
+          outline: none;
+        }
+      }
+
+      .modifications {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        h3 {
+          margin-bottom: 10px;
+          font-weight: 400;
+          font-size: 16px;
+          color: black;
+          font-weight: 500;
+        }
+
+        .sliderControl {
+          margin-bottom: 20px;
+
+          .sliderControlHead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+
+            label {
+              color: black;
+              font-weight: 500;
+            }
+
+            .sliderInput {
+              width: 60px;
+              padding: 10px;
+              border-radius: 5px;
+              border: 1px solid $borders;
+              background-color: $white;
+              text-align: center;
+              appearance: none;
+              font-size: 14px;
+              color: $selectedPrimary;
+
+              -moz-appearance: textfield;
+              -webkit-appearance: none;
+            }
+
+            .sliderInput::-webkit-outer-spin-button,
+            .sliderInput::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+            }
+          }
+
+          input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: $selectedPrimary;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: 0.2s;
+            transition: opacity 0.2s;
+
+            &::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              appearance: none;
+              width: 20px;
+              height: 20px;
+              background: $selectedPrimary;
+              cursor: pointer;
+              border-radius: 50%;
+            }
+
+            &::-moz-range-thumb {
+              width: 20px;
+              height: 20px;
+              background: $selectedPrimary;
+              cursor: pointer;
+              border-radius: 50%;
+            }
+          }
+        }
+      }
+    }
+  }
+}
