@@ -59,24 +59,6 @@
     flex-direction: column;
 
     .chatInput {
-      .continueButton {
-        margin-top: 5px;
-
-        button {
-          border: none;
-          outline: none;
-          background-color: #f8f5f5;
-          border-radius: 10px;
-          cursor: pointer;
-          padding: 10px;
-          color: black;
-
-          &:hover {
-            background-color: #e0e0e0;
-          }
-        }
-      }
-
       .chatForm {
         padding: 10px;
         border: 1px solid $borders;
