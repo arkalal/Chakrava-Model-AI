@@ -108,7 +108,7 @@ const ChatWindow = () => {
 
           <div className={styles.continueButton}>
             <button onClick={handleContinueResponse} disabled={loading}>
-              {loading ? "Continuing..." : "Continue with your response"}
+              Complete the response properly
             </button>
           </div>
         </div>
