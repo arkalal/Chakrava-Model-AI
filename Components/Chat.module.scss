@@ -59,6 +59,14 @@
     flex-direction: column;
 
     .chatInput {
+      .imagePreview {
+        img {
+          object-fit: contain;
+          height: auto;
+          width: 50px;
+        }
+      }
+
       .chatForm {
         padding: 10px;
         border: 1px solid $borders;

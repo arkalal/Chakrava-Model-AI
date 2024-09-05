@@ -16,6 +16,7 @@ export async function POST(req) {
       repetitionPenalty,
       key,
       endpoint,
+      experimental_attachments,
     } = await req.json();
 
     const config = new Configuration({
@@ -32,15 +33,13 @@ export async function POST(req) {
 
     const response = await openai.createChatCompletion({
       model: "ft:gpt-4o-2024-08-06:personal:chakrava-dev-v3:A3RXH2Hk",
-      temperature: 1,
+      temperature: 0.9,
       max_tokens: 4000,
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
-      response_format: {
-        type: "text",
-      },
       messages: [systemMessage, ...messages],
+      attachments: experimental_attachments, // Attach images if any
       stream: true,
     });
 
@@ -48,11 +47,6 @@ export async function POST(req) {
     return new StreamingTextResponse(stream);
   } catch (error) {
     console.error("API Error:", error);
-    return new NextResponse.json(
-      { error: error.message },
-      {
-        status: 400,
-      }
-    );
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }

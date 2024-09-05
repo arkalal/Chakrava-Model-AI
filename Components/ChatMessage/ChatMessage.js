@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/cjs/styles/prism"; // Choose your preferred theme
 import styles from "../Chat.module.scss";
+import Image from "next/image";
 
-const renderMessage = (content) => {
+// Function to render content including code blocks and images
+const renderMessage = (message) => {
+  const content = message.content;
   const codeRegex =
     /```(javascript|bash|css|scss|code|SCSS|CSS|jsx|JSX|js|JS)?\n([\s\S]*?)```/g; // Regex to detect code blocks
   const parts = [];
@@ -11,14 +14,14 @@ const renderMessage = (content) => {
   let match;
 
   while ((match = codeRegex.exec(content)) !== null) {
-    // Push text before code block
+    // Push text before the code block
     if (match.index > lastIndex) {
       parts.push(
         <p key={lastIndex}>{content.slice(lastIndex, match.index)}</p>
       );
     }
 
-    const language = match[1] || ""; // Language detected (javascript, bash)
+    const language = match[1] || ""; // Language detected (e.g. javascript, bash)
     const code = match[2];
 
     // Add code block with a copy button
@@ -41,13 +44,31 @@ const renderMessage = (content) => {
   return parts;
 };
 
+// Main ChatMessage component to handle message rendering
 const ChatMessage = ({ message }) => {
   return (
     <div className={styles.chatMessage}>
       <div
         className={message.role === "user" ? styles.userText : styles.aiText}
       >
-        {renderMessage(message.content)}
+        {renderMessage(message)}
+
+        {/* Render images if any exist in the experimental_attachments */}
+        <div>
+          {message?.experimental_attachments
+            ?.filter((attachment) =>
+              attachment?.contentType?.startsWith("image/")
+            )
+            .map((attachment, index) => (
+              <Image
+                key={`${message.id}-${index}`}
+                src={attachment.url}
+                width={80} // Adjust width based on your design
+                alt={attachment.name}
+                height={80}
+              />
+            ))}
+        </div>
       </div>
     </div>
   );
