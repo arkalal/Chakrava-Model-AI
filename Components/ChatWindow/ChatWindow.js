@@ -22,14 +22,11 @@ const ChatWindow = () => {
     useChat({
       api: "/api/chat",
       body: {
-        model,
-        outputLength,
-        temperature,
-        topP,
-        topK,
-        repetitionPenalty,
+        experimental_attachments: imageFile && imageFile,
       },
     });
+
+  console.log("imageFile", imageFile);
 
   // Scroll to the bottom when messages update
   useLayoutEffect(() => {
@@ -62,7 +59,7 @@ const ChatWindow = () => {
 
     // Reset input and file after submission
     setInput("");
-    resetFileInput(); // Clear file input via the passed function
+    // resetFileInput(); // Clear file input via the passed function
   };
 
   return (
