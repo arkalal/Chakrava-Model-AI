@@ -4,7 +4,8 @@ import { tomorrow } from "react-syntax-highlighter/dist/cjs/styles/prism"; // Ch
 import styles from "../Chat.module.scss";
 
 const renderMessage = (content) => {
-  const codeRegex = /```(javascript|bash|css|scss)?\n([\s\S]*?)```/g; // Regex to detect code blocks
+  const codeRegex =
+    /```(javascript|bash|css|scss|code|SCSS|CSS|jsx|JSX|js|JS)?\n([\s\S]*?)```/g; // Regex to detect code blocks
   const parts = [];
   let lastIndex = 0;
   let match;
