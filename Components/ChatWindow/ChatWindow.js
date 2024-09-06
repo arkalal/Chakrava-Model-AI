@@ -22,7 +22,7 @@ const ChatWindow = () => {
     useChat({
       api: "/api/chat",
       body: {
-        experimental_attachments: imageFile && imageFile,
+        experimental_attachments: imageFile,
       },
     });
 
@@ -59,7 +59,7 @@ const ChatWindow = () => {
 
     // Reset input and file after submission
     setInput("");
-    // resetFileInput(); // Clear file input via the passed function
+    resetFileInput(); // Clear file input via the passed function
   };
 
   return (

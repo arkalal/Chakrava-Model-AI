@@ -31,9 +31,9 @@ const ChatInput = ({
       }}
     >
       <div className={styles.inputControls}>
-        <label htmlFor="imageUpload">
+        {/* <label htmlFor="imageUpload">
           <FiUpload className={styles.uploadIcon} />
-        </label>
+        </label> */}
         <input
           type="file"
           id="imageUpload"
