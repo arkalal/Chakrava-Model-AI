@@ -3,18 +3,18 @@
 import React, { useState, useRef, useLayoutEffect } from "react";
 import styles from "../Chat.module.scss";
 import ChatMessage from "../ChatMessage/ChatMessage";
-import SliderControl from "../SliderControl/SliderControl";
-import ChatInput from "../ChatInput/ChatInput";
 import { useChat } from "ai/react";
+import ChatInput from "../ChatInput/ChatInput";
 
 const ChatWindow = () => {
   const [model, setModel] = useState("gpt-3.5-turbo");
-  const [outputLength, setOutputLength] = useState(1000); // Default value
-  const [temperature, setTemperature] = useState(0.8); // Default value
-  const [topP, setTopP] = useState(1.0); // Default value
-  const [topK, setTopK] = useState(50); // Default value
+  const [outputLength, setOutputLength] = useState(1000);
+  const [temperature, setTemperature] = useState(0.8);
+  const [topP, setTopP] = useState(1.0);
+  const [topK, setTopK] = useState(50);
   const [repetitionPenalty, setRepetitionPenalty] = useState(1.0);
-  const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState(null); // Store uploaded image
+  const [imagePreview, setImagePreview] = useState(null); // For image preview
 
   const messagesEndRef = useRef(null);
 
@@ -22,21 +22,45 @@ const ChatWindow = () => {
     useChat({
       api: "/api/chat",
       body: {
-        model,
-        outputLength,
-        temperature,
-        topP,
-        topK,
-        repetitionPenalty,
+        experimental_attachments: imageFile,
       },
     });
 
-  // Scroll to the bottom as messages update
+  console.log("imageFile", imageFile);
+
+  // Scroll to the bottom when messages update
   useLayoutEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView();
     }
   }, [messages]);
+
+  // Handle image upload and preview
+  const handleImageUpload = (event) => {
+    const files = event.target.files;
+    if (files && files[0]) {
+      setImageFile(files); // Store the FileList
+      setImagePreview(URL.createObjectURL(files[0])); // Preview image
+    }
+  };
+
+  // Reset file input
+  const resetFileInput = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  // Submit with prompt and image attachments
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    await handleSubmit(e, {
+      experimental_attachments: imageFile, // Send image attachments
+    });
+
+    // Reset input and file after submission
+    setInput("");
+    resetFileInput(); // Clear file input via the passed function
+  };
 
   return (
     <div className={styles.chatContainer}>
@@ -46,58 +70,24 @@ const ChatWindow = () => {
             {messages.map((message, index) => (
               <ChatMessage key={index} message={message} />
             ))}
-
             <div ref={messagesEndRef} />
           </div>
-          {/* <div className={styles.settingsPanel}>
-            <div className={styles.modifications}>
-              <SliderControl
-                label="Output Length"
-                value={outputLength}
-                setValue={setOutputLength}
-                min={1}
-                max={1024}
-              />
-              <SliderControl
-                label="Temperature"
-                value={temperature}
-                setValue={setTemperature}
-                min={0}
-                max={1}
-                step={0.01}
-              />
-              <SliderControl
-                label="Top-P"
-                value={topP}
-                setValue={setTopP}
-                min={0}
-                max={1}
-                step={0.01}
-              />
-              <SliderControl
-                label="Top-K"
-                value={topK}
-                setValue={setTopK}
-                min={0}
-                max={100}
-              />
-              <SliderControl
-                label="Repetition Penalty"
-                value={repetitionPenalty}
-                setValue={setRepetitionPenalty}
-                min={0}
-                max={2}
-                step={0.01}
-              />
-            </div>
-          </div> */}
         </div>
 
         <div className={styles.chatInput}>
+          {imagePreview && (
+            <div className={styles.imagePreview}>
+              <img src={imagePreview} alt="Preview" />
+              <button onClick={() => setImagePreview(null)}>Remove</button>
+            </div>
+          )}
+
           <ChatInput
             value={input}
             onChange={handleInputChange}
-            onSubmit={handleSubmit}
+            onSubmit={handleFormSubmit}
+            handleImageUpload={handleImageUpload} // Pass image handler
+            resetFileInput={resetFileInput} // Pass reset function
           />
         </div>
       </div>
