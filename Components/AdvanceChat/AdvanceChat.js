@@ -6,7 +6,7 @@ import ChatMessage from "../ChatMessage/ChatMessage";
 import { useChat } from "ai/react";
 import ChatInput from "../ChatInput/ChatInput";
 
-const ChatWindow = () => {
+const AdvanceChat = () => {
   const [model, setModel] = useState("gpt-3.5-turbo");
   const [outputLength, setOutputLength] = useState(1000);
   const [temperature, setTemperature] = useState(0.8);
@@ -20,7 +20,7 @@ const ChatWindow = () => {
 
   const { messages, input, setInput, handleInputChange, handleSubmit } =
     useChat({
-      api: "/api/chat",
+      api: "/api/functionChat",
       body: {
         experimental_attachments: imageFile,
       },
@@ -96,4 +96,4 @@ const ChatWindow = () => {
   );
 };
 
-export default ChatWindow;
+export default AdvanceChat;
