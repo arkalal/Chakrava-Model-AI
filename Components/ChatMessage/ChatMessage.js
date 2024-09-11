@@ -3,9 +3,20 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/cjs/styles/prism"; // Choose your preferred theme
 import styles from "../Chat.module.scss";
 import Image from "next/image";
+import { HashLoader } from "react-spinners"; // Import HashLoader
 
 // Function to render content including code blocks and images
-const renderMessage = (message) => {
+const renderMessage = (message, isLoading) => {
+  // Check if loading is enabled and show the loader for AI assistant messages
+  if (isLoading && message.role === "assistant") {
+    return (
+      <div className={styles.loaderContainer}>
+        <HashLoader color="#4A90E2" size={40} />
+      </div>
+    );
+  }
+
+  // Detect code blocks using regex
   const content = message.content;
   const codeRegex =
     /```(javascript|bash|css|scss|code|SCSS|CSS|jsx|JSX|js|JS)?\n([\s\S]*?)```/g; // Regex to detect code blocks
@@ -45,13 +56,13 @@ const renderMessage = (message) => {
 };
 
 // Main ChatMessage component to handle message rendering
-const ChatMessage = ({ message }) => {
+const ChatMessage = ({ message, isLoading }) => {
   return (
     <div className={styles.chatMessage}>
       <div
         className={message.role === "user" ? styles.userText : styles.aiText}
       >
-        {renderMessage(message)}
+        {renderMessage(message, isLoading)}
 
         {/* Render images if any exist in the experimental_attachments */}
         <div>
