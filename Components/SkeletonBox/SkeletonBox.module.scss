@@ -1,0 +1,19 @@
+.skeleton-box {
+  background-color: #ddd;
+  border-radius: 10px;
+  margin: 10px 0;
+  padding: 20px;
+
+  .skeleton-header {
+    background-color: #ccc;
+    height: 20px;
+    width: 100px;
+    margin-bottom: 10px;
+  }
+
+  .skeleton-content {
+    background-color: #e0e0e0;
+    height: 100px;
+    width: 100%;
+  }
+}

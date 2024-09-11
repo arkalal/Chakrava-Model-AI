@@ -3,36 +3,24 @@
 import React, { useState, useRef, useLayoutEffect } from "react";
 import styles from "../Chat.module.scss";
 import ChatMessage from "../ChatMessage/ChatMessage";
-import { useChat } from "ai/react";
 import ChatInput from "../ChatInput/ChatInput";
+import { useChat } from "ai/react"; // Vercel's AI SDK
 
 const AdvanceChat = () => {
-  const [model, setModel] = useState("gpt-3.5-turbo");
-  const [outputLength, setOutputLength] = useState(1000);
-  const [temperature, setTemperature] = useState(0.8);
-  const [topP, setTopP] = useState(1.0);
-  const [topK, setTopK] = useState(50);
-  const [repetitionPenalty, setRepetitionPenalty] = useState(1.0);
   const [imageFile, setImageFile] = useState(null); // Store uploaded image
   const [imagePreview, setImagePreview] = useState(null); // For image preview
-
   const messagesEndRef = useRef(null);
 
-  const { messages, input, setInput, handleInputChange, handleSubmit } =
-    useChat({
-      api: "/api/functionChat",
-      body: {
-        experimental_attachments: imageFile,
-      },
-      maxToolRoundtrips: 2,
-    });
-
-  console.log("imageFile", imageFile);
+  const { messages, input, setInput, handleSubmit, addToolResult } = useChat({
+    api: "/api/functionChat",
+    body: { experimental_attachments: imageFile }, // Attach image
+    maxToolRoundtrips: 2, // Enable tool roundtrips
+  });
 
   // Scroll to the bottom when messages update
   useLayoutEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView();
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
@@ -40,7 +28,7 @@ const AdvanceChat = () => {
   const handleImageUpload = (event) => {
     const files = event.target.files;
     if (files && files[0]) {
-      setImageFile(files); // Store the FileList
+      setImageFile(files[0]); // Store the file
       setImagePreview(URL.createObjectURL(files[0])); // Preview image
     }
   };
@@ -51,16 +39,12 @@ const AdvanceChat = () => {
     setImagePreview(null);
   };
 
-  // Submit with prompt and image attachments
+  // Submit the form with prompt and image attachments
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    await handleSubmit(e, {
-      experimental_attachments: imageFile, // Send image attachments
-    });
-
-    // Reset input and file after submission
-    setInput("");
-    resetFileInput(); // Clear file input via the passed function
+    await handleSubmit(e);
+    setInput(""); // Clear input after submission
+    resetFileInput(); // Reset file input after submission
   };
 
   return (
@@ -79,16 +63,15 @@ const AdvanceChat = () => {
           {imagePreview && (
             <div className={styles.imagePreview}>
               <img src={imagePreview} alt="Preview" />
-              <button onClick={() => setImagePreview(null)}>Remove</button>
+              <button onClick={resetFileInput}>Remove</button>
             </div>
           )}
 
           <ChatInput
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             onSubmit={handleFormSubmit}
             handleImageUpload={handleImageUpload} // Pass image handler
-            resetFileInput={resetFileInput} // Pass reset function
           />
         </div>
       </div>
