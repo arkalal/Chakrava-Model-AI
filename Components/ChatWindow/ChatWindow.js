@@ -24,6 +24,7 @@ const ChatWindow = () => {
       body: {
         experimental_attachments: imageFile,
       },
+      maxToolRoundtrips: 2,
     });
 
   console.log("imageFile", imageFile);
