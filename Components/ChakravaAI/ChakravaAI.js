@@ -8,12 +8,11 @@ import SkeletonBox from "../SkeletonBox/SkeletonBox"; // Import SkeletonBox
 import Box from "../Box/Box"; // Import Box
 import axios from "../../axios/api"; // For backend interaction
 
-const AdvanceChat = () => {
+const ChakravaAI = () => {
   const [isRenderingBox, setIsRenderingBox] = useState(false); // Handle box rendering
   const [boxData, setBoxData] = useState(null); // Data to display in Box component
   const [chatHistory, setChatHistory] = useState([]); // Chat history
   const [input, setInput] = useState(""); // User input
-  const [isLoading, setIsLoading] = useState(false); // State to manage loader
   const messagesEndRef = useRef(null); // For auto-scroll to bottom
 
   // Scroll to the bottom whenever messages update
@@ -35,63 +34,25 @@ const AdvanceChat = () => {
   // Handle submission and interaction with backend
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const currentInput = input.trim(); // Capture the input before resetting
-
-    if (!currentInput) return; // Prevent empty messages from being submitted
     setInput(""); // Clear the input after submission
 
     // Add user input to chat history
-    const userMessage = { role: "user", content: currentInput };
+    const userMessage = { role: "user", content: input };
     setChatHistory((prev) => [...prev, userMessage]);
-
-    // Add loading indicator message for AI
-    const loaderMessage = { role: "assistant", content: "", isLoading: true };
-    setChatHistory((prev) => [...prev, loaderMessage]);
-    setIsLoading(true);
 
     // Make API request to the backend
     try {
-      const response = await axios.post("functionChat", {
-        prompt: currentInput, // Use captured input
-        conversationHistory: [...chatHistory, userMessage],
+      const response = await axios.post("chakravaChat", {
+        prompt: input,
+        conversationHistory: chatHistory,
       });
 
       const aiMessage = response.data;
+
       console.log("AI response:", aiMessage);
-
-      // Replace loader message with AI response
-      setChatHistory((prev) => {
-        const updatedHistory = [...prev];
-        updatedHistory[updatedHistory.length - 1] = {
-          ...aiMessage,
-          isLoading: false,
-        };
-        return updatedHistory;
-      });
-
-      // Check if there's a function call in the AI response
-      if (aiMessage.function_call) {
-        const functionCall = aiMessage.function_call;
-
-        if (functionCall.name === "render_box_component") {
-          handleRenderBox("This is rendered from AI response!"); // Render the box
-        } else if (functionCall.name === "get_training_data") {
-          console.log("Fetching training data...");
-        }
-      }
+      setChatHistory((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error("Error fetching AI response:", error);
-      setChatHistory((prev) => {
-        const updatedHistory = [...prev];
-        updatedHistory[updatedHistory.length - 1] = {
-          role: "assistant",
-          content: "Error fetching response. Please try again.",
-          isLoading: false,
-        };
-        return updatedHistory;
-      });
-    } finally {
-      setIsLoading(false); // Ensure loader is hidden after response
     }
   };
 
@@ -101,11 +62,7 @@ const AdvanceChat = () => {
         <div className={styles.chatWindow}>
           <div className={styles.chatHistory}>
             {chatHistory.map((message, index) => (
-              <ChatMessage
-                key={index}
-                message={message}
-                isLoading={message.isLoading}
-              />
+              <ChatMessage key={index} message={message} />
             ))}
             <div ref={messagesEndRef} />
           </div>
@@ -128,4 +85,4 @@ const AdvanceChat = () => {
   );
 };
 
-export default AdvanceChat;
+export default ChakravaAI;
