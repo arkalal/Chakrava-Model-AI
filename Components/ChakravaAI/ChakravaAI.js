@@ -14,6 +14,7 @@ const ChakravaAI = () => {
   const [chatHistory, setChatHistory] = useState([]); // Chat history
   const [input, setInput] = useState(""); // User input
   const messagesEndRef = useRef(null); // For auto-scroll to bottom
+  const [isLoading, setIsLoading] = useState(false); // State to manage loader
 
   // Scroll to the bottom whenever messages update
   useLayoutEffect(() => {
@@ -40,6 +41,11 @@ const ChakravaAI = () => {
     const userMessage = { role: "user", content: input };
     setChatHistory((prev) => [...prev, userMessage]);
 
+    // Add loading indicator message for AI
+    const loaderMessage = { role: "assistant", content: "", isLoading: true };
+    setChatHistory((prev) => [...prev, loaderMessage]);
+    setIsLoading(true);
+
     // Make API request to the backend
     try {
       const response = await axios.post("chakravaChat", {
@@ -50,9 +56,19 @@ const ChakravaAI = () => {
       const aiMessage = response.data;
 
       console.log("AI response:", aiMessage);
-      setChatHistory((prev) => [...prev, aiMessage]);
+      // Replace loader message with AI response
+      setChatHistory((prev) => {
+        const updatedHistory = [...prev];
+        updatedHistory[updatedHistory.length - 1] = {
+          ...aiMessage,
+          isLoading: false,
+        };
+        return updatedHistory;
+      });
     } catch (error) {
       console.error("Error fetching AI response:", error);
+    } finally {
+      setIsLoading(false); // Ensure loader is hidden after response
     }
   };
 
@@ -62,7 +78,11 @@ const ChakravaAI = () => {
         <div className={styles.chatWindow}>
           <div className={styles.chatHistory}>
             {chatHistory.map((message, index) => (
-              <ChatMessage key={index} message={message} />
+              <ChatMessage
+                key={index}
+                message={message}
+                isLoading={message.isLoading}
+              />
             ))}
             <div ref={messagesEndRef} />
           </div>
