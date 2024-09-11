@@ -4,47 +4,69 @@ import React, { useState, useRef, useLayoutEffect } from "react";
 import styles from "../Chat.module.scss";
 import ChatMessage from "../ChatMessage/ChatMessage";
 import ChatInput from "../ChatInput/ChatInput";
-import { useChat } from "ai/react"; // Vercel's AI SDK
+import SkeletonBox from "../SkeletonBox/SkeletonBox"; // Import SkeletonBox
+import Box from "../Box/Box"; // Import Box
+import axios from "../../axios/api"; // For backend interaction
 
 const AdvanceChat = () => {
-  const [imageFile, setImageFile] = useState(null); // Store uploaded image
-  const [imagePreview, setImagePreview] = useState(null); // For image preview
-  const messagesEndRef = useRef(null);
+  const [isRenderingBox, setIsRenderingBox] = useState(false); // Handle box rendering
+  const [boxData, setBoxData] = useState(null); // Data to display in Box component
+  const [chatHistory, setChatHistory] = useState([]); // Chat history
+  const [input, setInput] = useState(""); // User input
+  const messagesEndRef = useRef(null); // For auto-scroll to bottom
 
-  const { messages, input, setInput, handleSubmit, addToolResult } = useChat({
-    api: "/api/functionChat",
-    body: { experimental_attachments: imageFile }, // Attach image
-    maxToolRoundtrips: 2, // Enable tool roundtrips
-  });
-
-  // Scroll to the bottom when messages update
+  // Scroll to the bottom whenever messages update
   useLayoutEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [chatHistory]);
 
-  // Handle image upload and preview
-  const handleImageUpload = (event) => {
-    const files = event.target.files;
-    if (files && files[0]) {
-      setImageFile(files[0]); // Store the file
-      setImagePreview(URL.createObjectURL(files[0])); // Preview image
-    }
+  // Function to handle box rendering
+  const handleRenderBox = (data) => {
+    setIsRenderingBox(true); // Show SkeletonBox for loading
+    setTimeout(() => {
+      setBoxData(data); // Update the data for the box
+      setIsRenderingBox(false); // Hide the SkeletonBox after 3 seconds
+    }, 3000);
   };
 
-  // Reset file input
-  const resetFileInput = () => {
-    setImageFile(null);
-    setImagePreview(null);
-  };
-
-  // Submit the form with prompt and image attachments
+  // Handle submission and interaction with backend
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    await handleSubmit(e);
-    setInput(""); // Clear input after submission
-    resetFileInput(); // Reset file input after submission
+
+    // Add user input to chat history
+    const userMessage = { role: "user", content: input };
+    setChatHistory((prev) => [...prev, userMessage]);
+
+    // Make API request to the backend
+    try {
+      const response = await axios.post("functionChat", {
+        prompt: input,
+        conversationHistory: chatHistory,
+      });
+
+      const aiMessage = response.data;
+
+      console.log("AI response:", aiMessage);
+      setChatHistory((prev) => [...prev, aiMessage]);
+
+      // Check if there's a function call in the AI response
+      if (aiMessage.function_call) {
+        const functionCall = aiMessage.function_call;
+
+        if (functionCall.name === "render_box_component") {
+          handleRenderBox("This is rendered from AI response!"); // Render the box
+        } else if (functionCall.name === "get_training_data") {
+          // Handle training data fetching
+          console.log("Fetching training data...");
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
+    }
+
+    setInput(""); // Clear the input after submission
   };
 
   return (
@@ -52,26 +74,23 @@ const AdvanceChat = () => {
       <div className={styles.chatBox}>
         <div className={styles.chatWindow}>
           <div className={styles.chatHistory}>
-            {messages.map((message, index) => (
+            {chatHistory.map((message, index) => (
               <ChatMessage key={index} message={message} />
             ))}
             <div ref={messagesEndRef} />
           </div>
         </div>
 
-        <div className={styles.chatInput}>
-          {imagePreview && (
-            <div className={styles.imagePreview}>
-              <img src={imagePreview} alt="Preview" />
-              <button onClick={resetFileInput}>Remove</button>
-            </div>
-          )}
+        {/* Display SkeletonBox or Box component based on state */}
+        <div className={styles.boxComponent}>
+          {isRenderingBox ? <SkeletonBox /> : boxData && <Box data={boxData} />}
+        </div>
 
+        <div className={styles.chatInput}>
           <ChatInput
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onSubmit={handleFormSubmit}
-            handleImageUpload={handleImageUpload} // Pass image handler
           />
         </div>
       </div>

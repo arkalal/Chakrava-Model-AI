@@ -37,7 +37,7 @@ const renderMessage = (message) => {
   }
 
   // Push any remaining text after the last code block
-  if (lastIndex < content.length) {
+  if (lastIndex < content?.length) {
     parts.push(<p key={lastIndex}>{content.slice(lastIndex)}</p>);
   }
 

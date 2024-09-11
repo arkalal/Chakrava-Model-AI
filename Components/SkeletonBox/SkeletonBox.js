@@ -3,9 +3,9 @@ import styles from "./SkeletonBox.module.scss";
 
 const SkeletonBox = () => {
   return (
-    <div className={styles.skeleton - box}>
-      <div className={styles.skeleton - header}></div>
-      <div className={styles.skeleton - content}></div>
+    <div className={styles.skeletonBox}>
+      <div className={styles.skeletonHeader}></div>
+      <div className={styles.skeletonContent}></div>
     </div>
   );
 };

@@ -1,63 +1,76 @@
-import { Configuration, OpenAIApi } from "openai-edge";
-import { OpenAIStream, StreamingTextResponse } from "ai";
-import axios from "../../../../axios/api"; // Axios for tool call responses
 import { NextResponse } from "next/server";
+import OpenAI from "openai";
+
+const openAi = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export const runtime = "edge";
 
+// Define the functions the AI can call
+const functions = [
+  {
+    name: "get_training_data",
+    description: "Fetch training data for the user.",
+    parameters: {
+      type: "object",
+      properties: {},
+    },
+  },
+  {
+    name: "render_box_component",
+    description: "Render a box component with some data.",
+    parameters: {
+      type: "object",
+      properties: {},
+    },
+  },
+];
+
 export async function POST(req) {
   try {
-    const { messages, experimental_attachments } = await req.json();
+    // Parse the request to get prompt and conversation history
+    const { prompt, conversationHistory } = await req.json();
 
-    const openai = new OpenAIApi(
-      new Configuration({
-        apiKey: process.env.OPENAI_API_KEY,
-      })
-    );
+    if (!prompt) {
+      return NextResponse.json(
+        { message: "Prompt is required" },
+        { status: 400 }
+      );
+    }
 
+    // System message
     const systemMessage = {
       role: "system",
       content:
         "You are a smart actionable chatbot. You can fetch training data or render components based on user requests.",
     };
 
-    const functions = [
-      {
-        name: "get_training_data",
-        description: "Fetch training data from /train endpoint",
-        parameters: { type: "object", properties: {} },
-      },
-      {
-        name: "render_box_component",
-        description: "Render a box component",
-        parameters: { type: "object", properties: {} },
-      },
+    // Prepare the message history for OpenAI
+    const messages = [
+      systemMessage, // Add system message
+      ...conversationHistory.map((item) => ({
+        role: item.role,
+        content: item.content,
+      })),
     ];
 
-    const response = await openai.createChatCompletion({
-      model: "gpt-4o-2024-05-13",
-      temperature: 0.9,
-      max_tokens: 4090,
-      stream: true,
-      messages: [systemMessage, ...messages],
-      function_call: "auto",
-      functions,
+    // Add the user's latest message
+    messages.push({ role: "user", content: prompt });
+
+    // Make the API call to OpenAI
+    const response = await openAi.chat.completions.create({
+      model: "gpt-4o-2024-05-13", // GPT-4o model
+      temperature: 0.9, // Set the temperature for randomness
+      max_tokens: 4090, // Max token limit
+      messages: messages,
+      function_call: "auto", // Let GPT decide the function call
+      functions: functions, // Provide the function schemas
     });
 
-    const stream = OpenAIStream(response, {
-      experimental_onFunctionCall: async ({ name }) => {
-        if (name === "get_training_data") {
-          const trainingData = await axios.get("/train");
-          return `Here is the training data: ${JSON.stringify(
-            trainingData.data.message
-          )}`;
-        }
-      },
-    });
-
-    return new StreamingTextResponse(stream);
+    // Send the AI's response back to the client
+    return NextResponse.json(response.choices[0].message);
   } catch (error) {
-    console.error("API Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ message: error.message }, { status: 400 });
   }
 }
