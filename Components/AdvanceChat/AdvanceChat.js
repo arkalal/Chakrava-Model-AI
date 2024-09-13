@@ -9,7 +9,8 @@ import axios from "../../axios/api"; // For backend interaction
 const AdvanceChat = () => {
   const [chatHistory, setChatHistory] = useState([]); // Chat history
   const [input, setInput] = useState(""); // User input
-  const [isLoading, setIsLoading] = useState(false); // State to manage loader
+  const [isLoading, setIsLoading] = useState(false); // State to manage loader for texts
+  const [isBoxLoading, setIsBoxLoading] = useState(false); // State to manage loader for the box (component)
   const messagesEndRef = useRef(null); // For auto-scroll to bottom
 
   // Scroll to the bottom whenever messages update
@@ -65,6 +66,9 @@ const AdvanceChat = () => {
             return updatedHistory;
           });
 
+          // Set the box loader state
+          setIsBoxLoading(true); // Box is now loading
+
           // Simulate loading time for the box
           setTimeout(() => {
             setChatHistory((prev) => {
@@ -75,6 +79,7 @@ const AdvanceChat = () => {
               };
               return updatedHistory;
             });
+            setIsBoxLoading(false); // Box has finished loading
           }, 3000); // Simulate a 3-second delay
         } else if (functionCall.name === "get_training_data") {
           console.log("Fetching training data...");
@@ -116,6 +121,7 @@ const AdvanceChat = () => {
                 key={index}
                 message={message}
                 isLoading={message.isLoading}
+                isBoxLoading={isBoxLoading}
               />
             ))}
             <div ref={messagesEndRef} />
