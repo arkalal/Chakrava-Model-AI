@@ -4,16 +4,13 @@ import React, { useState, useRef, useLayoutEffect } from "react";
 import styles from "../Chat.module.scss";
 import ChatMessage from "../ChatMessage/ChatMessage";
 import ChatInput from "../ChatInput/ChatInput";
-import SkeletonBox from "../SkeletonBox/SkeletonBox"; // Import SkeletonBox
-import Box from "../Box/Box"; // Import Box
 import axios from "../../axios/api"; // For backend interaction
 
 const AdvanceChat = () => {
-  const [isRenderingBox, setIsRenderingBox] = useState(false); // Handle box rendering
-  const [boxData, setBoxData] = useState(null); // Data to display in Box component
   const [chatHistory, setChatHistory] = useState([]); // Chat history
   const [input, setInput] = useState(""); // User input
-  const [isLoading, setIsLoading] = useState(false); // State to manage loader
+  const [isLoading, setIsLoading] = useState(false); // State to manage loader for texts
+  const [isBoxLoading, setIsBoxLoading] = useState(false); // State to manage loader for the box (component)
   const messagesEndRef = useRef(null); // For auto-scroll to bottom
 
   // Scroll to the bottom whenever messages update
@@ -23,13 +20,15 @@ const AdvanceChat = () => {
     }
   }, [chatHistory]);
 
-  // Function to handle box rendering
-  const handleRenderBox = (data) => {
-    setIsRenderingBox(true); // Show SkeletonBox for loading
-    setTimeout(() => {
-      setBoxData(data); // Update the data for the box
-      setIsRenderingBox(false); // Hide the SkeletonBox after 3 seconds
-    }, 3000);
+  // Function to handle fetching training data from the /train endpoint
+  const fetchTrainingData = async () => {
+    try {
+      const res = await axios.get("train");
+      return res.data.message; // Get the message from the training API response
+    } catch (error) {
+      console.error("Error fetching training data:", error);
+      return "Error fetching training data.";
+    }
   };
 
   // Handle submission and interaction with backend
@@ -59,25 +58,67 @@ const AdvanceChat = () => {
       const aiMessage = response.data;
       console.log("AI response:", aiMessage);
 
-      // Replace loader message with AI response
-      setChatHistory((prev) => {
-        const updatedHistory = [...prev];
-        updatedHistory[updatedHistory.length - 1] = {
-          ...aiMessage,
-          isLoading: false,
-        };
-        return updatedHistory;
-      });
-
       // Check if there's a function call in the AI response
       if (aiMessage.function_call) {
         const functionCall = aiMessage.function_call;
 
         if (functionCall.name === "render_box_component") {
-          handleRenderBox("This is rendered from AI response!"); // Render the box
+          const boxMessage = {
+            role: "assistant",
+            content: "", // Empty content because we are rendering the box
+            boxData: "This is rendered from AI response!", // Data for the box
+            isLoading: true, // Indicate loading state
+          };
+
+          // Replace loader message with the AI box message
+          setChatHistory((prev) => {
+            const updatedHistory = [...prev];
+            updatedHistory[updatedHistory.length - 1] = boxMessage;
+            return updatedHistory;
+          });
+
+          // Set the box loader state
+          setIsBoxLoading(true); // Box is now loading
+
+          // Simulate loading time for the box
+          setTimeout(() => {
+            setChatHistory((prev) => {
+              const updatedHistory = [...prev];
+              updatedHistory[updatedHistory.length - 1] = {
+                ...boxMessage,
+                isLoading: false, // Box has finished loading
+              };
+              return updatedHistory;
+            });
+            setIsBoxLoading(false); // Box has finished loading
+          }, 3000); // Simulate a 3-second delay
         } else if (functionCall.name === "get_training_data") {
-          console.log("Fetching training data...");
+          // Fetch the training data from the /train API
+          const trainingData = await fetchTrainingData();
+
+          const trainingMessage = {
+            role: "assistant",
+            content: `The training data is: ${trainingData}`, // AI responds with the fetched data
+            isLoading: false,
+          };
+
+          // Replace loader message with the AI's training data response
+          setChatHistory((prev) => {
+            const updatedHistory = [...prev];
+            updatedHistory[updatedHistory.length - 1] = trainingMessage;
+            return updatedHistory;
+          });
         }
+      } else {
+        // Replace loader message with AI response (normal conversation)
+        setChatHistory((prev) => {
+          const updatedHistory = [...prev];
+          updatedHistory[updatedHistory.length - 1] = {
+            ...aiMessage,
+            isLoading: false,
+          };
+          return updatedHistory;
+        });
       }
     } catch (error) {
       console.error("Error fetching AI response:", error);
@@ -105,15 +146,11 @@ const AdvanceChat = () => {
                 key={index}
                 message={message}
                 isLoading={message.isLoading}
+                isBoxLoading={isBoxLoading}
               />
             ))}
             <div ref={messagesEndRef} />
           </div>
-        </div>
-
-        {/* Display SkeletonBox or Box component based on state */}
-        <div className={styles.boxComponent}>
-          {isRenderingBox ? <SkeletonBox /> : boxData && <Box data={boxData} />}
         </div>
 
         <div className={styles.chatInput}>

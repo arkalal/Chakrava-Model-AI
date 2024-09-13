@@ -1,13 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/cjs/styles/prism"; // Choose your preferred theme
 import styles from "../Chat.module.scss";
 import Image from "next/image";
 import { HashLoader } from "react-spinners"; // Import HashLoader
+import SkeletonBox from "../SkeletonBox/SkeletonBox"; // Import SkeletonBox
+import Box from "../Box/Box"; // Import Box
 
 // Function to render content including code blocks and images
-const renderMessage = (message, isLoading) => {
-  // Check if loading is enabled and show the loader for AI assistant messages
+const renderMessage = (message, isLoading, isBoxLoading) => {
+  // Check if the message contains boxData and render SkeletonBox or Box
+  if (message.boxData) {
+    return isBoxLoading ? <SkeletonBox /> : <Box data={message.boxData} />;
+  }
+
+  // Check if loading is enabled and show the loader for AI assistant text messages
   if (isLoading && message.role === "assistant") {
     return (
       <div className={styles.loaderContainer}>
@@ -56,13 +63,13 @@ const renderMessage = (message, isLoading) => {
 };
 
 // Main ChatMessage component to handle message rendering
-const ChatMessage = ({ message, isLoading }) => {
+const ChatMessage = ({ message, isLoading, isBoxLoading }) => {
   return (
     <div className={styles.chatMessage}>
       <div
         className={message.role === "user" ? styles.userText : styles.aiText}
       >
-        {renderMessage(message, isLoading)}
+        {renderMessage(message, isLoading, isBoxLoading)}
 
         {/* Render images if any exist in the experimental_attachments */}
         <div>
