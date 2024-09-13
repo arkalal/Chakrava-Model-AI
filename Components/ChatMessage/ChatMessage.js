@@ -4,6 +4,8 @@ import { tomorrow } from "react-syntax-highlighter/dist/cjs/styles/prism"; // Ch
 import styles from "../Chat.module.scss";
 import Image from "next/image";
 import { HashLoader } from "react-spinners"; // Import HashLoader
+import SkeletonBox from "../SkeletonBox/SkeletonBox"; // Import SkeletonBox
+import Box from "../Box/Box"; // Import Box
 
 // Function to render content including code blocks and images
 const renderMessage = (message, isLoading) => {
@@ -14,6 +16,11 @@ const renderMessage = (message, isLoading) => {
         <HashLoader color="#4A90E2" size={40} />
       </div>
     );
+  }
+
+  // Check if the message contains boxData and render SkeletonBox or Box
+  if (message.boxData) {
+    return isLoading ? <SkeletonBox /> : <Box data={message.boxData} />;
   }
 
   // Detect code blocks using regex
