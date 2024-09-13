@@ -20,6 +20,17 @@ const AdvanceChat = () => {
     }
   }, [chatHistory]);
 
+  // Function to handle fetching training data from the /train endpoint
+  const fetchTrainingData = async () => {
+    try {
+      const res = await axios.get("train");
+      return res.data.message; // Get the message from the training API response
+    } catch (error) {
+      console.error("Error fetching training data:", error);
+      return "Error fetching training data.";
+    }
+  };
+
   // Handle submission and interaction with backend
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -82,7 +93,21 @@ const AdvanceChat = () => {
             setIsBoxLoading(false); // Box has finished loading
           }, 3000); // Simulate a 3-second delay
         } else if (functionCall.name === "get_training_data") {
-          console.log("Fetching training data...");
+          // Fetch the training data from the /train API
+          const trainingData = await fetchTrainingData();
+
+          const trainingMessage = {
+            role: "assistant",
+            content: `The training data is: ${trainingData}`, // AI responds with the fetched data
+            isLoading: false,
+          };
+
+          // Replace loader message with the AI's training data response
+          setChatHistory((prev) => {
+            const updatedHistory = [...prev];
+            updatedHistory[updatedHistory.length - 1] = trainingMessage;
+            return updatedHistory;
+          });
         }
       } else {
         // Replace loader message with AI response (normal conversation)
