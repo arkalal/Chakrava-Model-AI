@@ -34,6 +34,7 @@ const AdvanceChat = () => {
   // Handle submission and interaction with backend
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+
     const currentInput = input.trim(); // Capture the input before resetting
 
     if (!currentInput) return; // Prevent empty messages from being submitted
